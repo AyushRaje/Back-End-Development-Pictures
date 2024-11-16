@@ -35,7 +35,10 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    if data:
+        return jsonify(data),200
+
+    return {"message": "Internal server error"}, 500    
 
 ######################################################################
 # GET A PICTURE
@@ -44,7 +47,12 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
+    if data:
+        for i in data:
+            if i.get("id") == id:
+                return jsonify(i),200
+
+    return {"message": "Not Found"}, 404    
 
 
 ######################################################################
@@ -52,7 +60,14 @@ def get_picture_by_id(id):
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    picture_to_create = request.get_json()
+    for i in data:
+        if i.get('id') == picture_to_create.get('id'):
+            return {"Message": f"picture with id {picture_to_create['id']} already present"},302
+
+    data.append(picture_to_create)
+    # json.dump(data, json_url)
+    return jsonify(picture_to_create),201     
 
 ######################################################################
 # UPDATE A PICTURE
@@ -61,11 +76,24 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    picture_to_update = request.get_json()
+    for i in data:
+        if i.get('id') == picture_to_update.get('id'):
+            for key in picture_to_update:
+                i[key] = picture_to_update[key]
+            return jsonify(i),200       
+            
+    return {"Message": f"picture not found"},404
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    for i in data:
+        if i.get('id') == id:
+            data.remove(i)
+            return jsonify(id),204
+                   
+            
+    return {"Message": f"picture not found"},404
